@@ -2,7 +2,11 @@
 
 #### This is a maintained version of fa2 [python library](https://github.com/bhargavchippada/forceatlas2). The source code is same as fa2, but this repo can be installed on Python 3.9+ whereas the original fa2 only runs on Python <3.8.
 --------
-
+[![PyPI version](https://img.shields.io/pypi/v/fa2-modified.svg)]([[https://pypi.python.org/pypi/fa2-modified](https://pypi.org/project/fa2-modified)](https://pypi.org/project/fa2-modified))
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![continuous-integration](https://github.com/irahorecka/pyforceatlas2/workflows/continuous-integration/badge.svg)](https://github.com/irahorecka/fa2-modified/actions)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-purple.svg)](https://raw.githubusercontent.com/aminalam/fa2-modified/main/LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-10.1371/journal.pone.0098679-blue)](https://doi.org/10.1371/journal.pone.0098679)
 
 
 A port of Gephi's Force Atlas 2 layout algorithm to Python 3 (with a wrapper for NetworkX and igraph). This is the fastest python implementation available with most of the features complete. It also supports Barnes Hut approximation for maximum speedup.
