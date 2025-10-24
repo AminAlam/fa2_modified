@@ -49,7 +49,7 @@ class ForceAtlas2:
                  # Behavior alternatives
                  outboundAttractionDistribution=False,  # Dissuade hubs
                  linLogMode=False,  # NOT IMPLEMENTED
-                 adjustSizes=False,  # Prevent overlap (NOT IMPLEMENTED)
+                 adjustSizes=False,  # Prevent overlap
                  edgeWeightInfluence=1.0,
 
                  # Performance
@@ -65,7 +65,7 @@ class ForceAtlas2:
 
                  # Log
                  verbose=True):
-        assert linLogMode == adjustSizes == multiThreaded == False, "You selected a feature that has not been implemented yet..."
+        assert linLogMode == multiThreaded == False, "You selected a feature that has not been implemented yet..."
         self.outboundAttractionDistribution = outboundAttractionDistribution
         self.linLogMode = linLogMode
         self.adjustSizes = adjustSizes
@@ -196,9 +196,9 @@ class ForceAtlas2:
             repulsion_timer.start()
             # parallelization should be implemented here
             if self.barnesHutOptimize:
-                rootRegion.applyForceOnNodes(nodes, self.barnesHutTheta, self.scalingRatio)
+                rootRegion.applyForceOnNodes(nodes, self.barnesHutTheta, self.scalingRatio, self.adjustSizes)
             else:
-                fa2util.apply_repulsion(nodes, self.scalingRatio)
+                fa2util.apply_repulsion(nodes, self.scalingRatio, self.adjustSizes)
             repulsion_timer.stop()
 
             # Gravitational forces
@@ -209,12 +209,12 @@ class ForceAtlas2:
             # If other forms of attraction were implemented they would be selected here.
             attraction_timer.start()
             fa2util.apply_attraction(nodes, edges, self.outboundAttractionDistribution, outboundAttCompensation,
-                                     self.edgeWeightInfluence)
+                                     self.edgeWeightInfluence, self.adjustSizes)
             attraction_timer.stop()
 
             # Adjust speeds and apply forces
             applyforces_timer.start()
-            values = fa2util.adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, self.jitterTolerance)
+            values = fa2util.adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, self.jitterTolerance, self.adjustSizes)
             speed = values['speed']
             speedEfficiency = values['speedEfficiency']
             applyforces_timer.stop()
