@@ -131,17 +131,18 @@ def linAttraction(n1, n2, e, distributedAttraction, coefficient, adjustSizes):
         factor = -coefficient * e
     else:
         factor = -coefficient * e / n1.mass
+        
     n1.dx += xDist * factor
     n1.dy += yDist * factor
     n2.dx -= xDist * factor
     n2.dy -= yDist * factor
 
 def linAttraction_antiCollision(n1, n2, e, distributedAttraction, coefficient):
-    xDist = n1.x() - n2.x();
-    yDist = n1.y() - n2.y();
-    distance = sqrt(xDist * xDist + yDist * yDist) - n1.size() - n2.size();
+    xDist = n1.x - n2.x;
+    yDist = n1.y - n2.y;
+    distance = sqrt(xDist * xDist + yDist * yDist) - n1.size - n2.size
 
-    if (distance > 0):
+    if distance > 0:
         if not distributedAttraction:
             factor = -coefficient * e
         else:
