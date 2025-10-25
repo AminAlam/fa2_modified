@@ -350,7 +350,7 @@ def adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, jitterTolerance, ad
             factor = 0.1 * speed / (1.0 + sqrt(speed * swinging))
 
             df = sqrt(pow(n.dx, 2) + pow(n.dy, 2))
-            factor = min(factor * df, 10) / df
+            factor = min(factor * df, 10.0) / df
 
             n.x = n.x + (n.dx * factor)
             n.y = n.y + (n.dy * factor)
