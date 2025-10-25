@@ -101,7 +101,7 @@ forceatlas2 = ForceAtlas2(
                         scalingRatio=2.0,
                         strongGravityMode=False,
                         gravity=1.0,
-			nodeSize=10,
+						nodeSize=10, # For overlapping
 
                         # Log
                         verbose=True)
