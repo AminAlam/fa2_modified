@@ -17,6 +17,7 @@ from math import sqrt
 class Node:
     def __init__(self):
         self.mass = 0.0
+        self.size = 5.0
         self.old_dx = 0.0
         self.old_dy = 0.0
         self.dx = 0.0

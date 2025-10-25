@@ -17,6 +17,7 @@ import cython
 # This will substitute for the nLayout object
 cdef class Node:
     cdef public double mass
+    cdef public double size
     cdef public double old_dx, old_dy
     cdef public double dx, dy
     cdef public double x, y
