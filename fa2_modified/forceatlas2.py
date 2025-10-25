@@ -62,6 +62,7 @@ class ForceAtlas2:
                  scalingRatio=2.0,
                  strongGravityMode=False,
                  gravity=1.0,
+                 nodeSize=1.0, # Overlap distance
 
                  # Log
                  verbose=True):
@@ -76,6 +77,7 @@ class ForceAtlas2:
         self.scalingRatio = scalingRatio
         self.strongGravityMode = strongGravityMode
         self.gravity = gravity
+        self.nodeSize = nodeSize
         self.verbose = verbose
 
     def init(self,
@@ -105,6 +107,7 @@ class ForceAtlas2:
                 n.mass = 1 + len(G.rows[i])
             else:
                 n.mass = 1 + numpy.count_nonzero(G[i])
+            n.size = self.nodeSize
             n.old_dx = 0
             n.old_dy = 0
             n.dx = 0
