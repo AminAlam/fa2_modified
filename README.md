@@ -88,7 +88,7 @@ forceatlas2 = ForceAtlas2(
                         # Behavior alternatives
                         outboundAttractionDistribution=True,  # Dissuade hubs
                         linLogMode=False,  # NOT IMPLEMENTED
-                        adjustSizes=False,  # Prevent overlap (NOT IMPLEMENTED)
+                        adjustSizes=False,  # Prevent overlap
                         edgeWeightInfluence=1.0,
 
                         # Performance
@@ -101,6 +101,7 @@ forceatlas2 = ForceAtlas2(
                         scalingRatio=2.0,
                         strongGravityMode=False,
                         gravity=1.0,
+			nodeSize=10,
 
                         # Log
                         verbose=True)
