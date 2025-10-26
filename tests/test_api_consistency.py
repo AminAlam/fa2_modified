@@ -335,15 +335,15 @@ class TestForceAtlas2ParameterValidation:
         with pytest.raises(AssertionError):
             ForceAtlas2(linLogMode=True)
 
-    def test_unimplemented_adjustSizes_raises_error(self):
-        """Test that adjustSizes=True raises AssertionError"""
-        with pytest.raises(AssertionError):
-            ForceAtlas2(adjustSizes=True)
-
     def test_unimplemented_multiThreaded_raises_error(self):
         """Test that multiThreaded=True raises AssertionError"""
         with pytest.raises(AssertionError):
             ForceAtlas2(multiThreaded=True)
+
+    def test_adjustSizes_parameter_accepted(self):
+        """Test that adjustSizes=True is now accepted (implemented feature)"""
+        fa2 = ForceAtlas2(adjustSizes=True)
+        assert fa2.adjustSizes is True
 
     def test_valid_parameters_accepted(self):
         """Test that all valid parameter combinations are accepted"""

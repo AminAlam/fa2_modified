@@ -41,7 +41,7 @@ class Edge:
 
 # Repulsion function.  `n1` and `n2` should be nodes.  This will
 # adjust the dx and dy values of `n1`  `n2`
-def linRepulsion(n1, n2, coefficient, adjustSizes):
+def linRepulsion(n1, n2, coefficient, adjustSizes=False):
     # Not the ideal solution, just to avoid repeating code in apply_repulsion.
     if adjustSizes:
         linRepulsion_antiCollision(n1, n2, coefficient)
@@ -124,7 +124,7 @@ def strongGravity(n, g, coefficient=0):
 # Attraction function.  `n1` and `n2` should be nodes.  This will
 # adjust the dx and dy values of `n1` and `n2`.  It does
 # not return anything.
-def linAttraction(n1, n2, e, distributedAttraction, coefficient, adjustSizes):
+def linAttraction(n1, n2, e, distributedAttraction, coefficient, adjustSizes=False):
     # Not the ideal solution, just to avoid repeating code in apply_attraction.
     if adjustSizes:
         linAttraction_antiCollision(n1, n2, e, distributedAttraction, coefficient)
@@ -164,7 +164,7 @@ def linAttraction_antiCollision(n1, n2, e, distributedAttraction, coefficient):
 # The following functions iterate through the nodes or edges and apply
 # the forces directly to the node objects.  These iterations are here
 # instead of the main file because Python is slow with loops.
-def apply_repulsion(nodes, coefficient, adjustSizes):
+def apply_repulsion(nodes, coefficient, adjustSizes=False):
     i = 0
     for n1 in nodes:
         j = i
@@ -186,7 +186,7 @@ def apply_gravity(nodes, gravity, scalingRatio, useStrongGravity=False):
 
 
 def apply_attraction(
-    nodes, edges, distributedAttraction, coefficient, edgeWeightInfluence, adjustSizes
+    nodes, edges, distributedAttraction, coefficient, edgeWeightInfluence, adjustSizes=False
 ):
     # Optimization, since usually edgeWeightInfluence is 0 or 1, and pow is slow
     if edgeWeightInfluence == 0:
@@ -311,7 +311,7 @@ class Region:
             for subregion in self.subregions:
                 subregion.buildSubRegions()
 
-    def applyForce(self, n, theta, coefficient, adjustSizes):
+    def applyForce(self, n, theta, coefficient, adjustSizes=False):
         if len(self.nodes) < 2:
             linRepulsion(n, self.nodes[0], coefficient, adjustSizes)
         else:
@@ -324,13 +324,13 @@ class Region:
                 for subregion in self.subregions:
                     subregion.applyForce(n, theta, coefficient, adjustSizes)
 
-    def applyForceOnNodes(self, nodes, theta, coefficient, adjustSizes):
+    def applyForceOnNodes(self, nodes, theta, coefficient, adjustSizes=False):
         for n in nodes:
             self.applyForce(n, theta, coefficient, adjustSizes)
 
 
 # Adjust speed and apply forces step
-def adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, jitterTolerance, adjustSizes):
+def adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, jitterTolerance, adjustSizes=False):
     # Auto adjust speed.
     totalSwinging = 0.0  # How much irregular movement
     totalEffectiveTraction = 0.0  # How much useful movement
