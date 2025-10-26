@@ -1,0 +1,24 @@
+# Codecov configuration for fa2_modified
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+    patch:
+      default:
+        target: auto
+        threshold: 5%
+
+ignore:
+  - "tests/"
+  - "examples/"
+  - "setup.py"
+  - "fa2_modified/fa2util.c"  # Generated C file
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+
