@@ -2,10 +2,11 @@
 API consistency and error handling tests
 Tests inspired by external ForceAtlas2 implementations
 """
-import pytest
-import numpy as np
-import scipy.sparse
 import numbers
+
+import numpy as np
+import pytest
+import scipy.sparse
 
 try:
     import networkx as nx

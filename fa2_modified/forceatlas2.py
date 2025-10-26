@@ -258,8 +258,8 @@ class ForceAtlas2:
     # This function returns an igraph layout
     def forceatlas2_igraph_layout(self, G, pos=None, iterations=100, weight_attr=None):
 
-        from scipy.sparse import csr_matrix
         import igraph
+        from scipy.sparse import csr_matrix
 
         def to_sparse(graph, weight_attr=None):
             edges = graph.get_edgelist()

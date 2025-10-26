@@ -2,8 +2,10 @@
 Precise numerical tests for fa2util module with exact value checking
 Tests inspired by external ForceAtlas2 implementations to ensure numerical accuracy
 """
-import pytest
 import math
+
+import pytest
+
 from fa2_modified import fa2util
 
 

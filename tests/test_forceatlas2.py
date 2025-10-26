@@ -1,8 +1,8 @@
 """
 Tests for ForceAtlas2 main class and layout algorithms
 """
-import pytest
 import numpy as np
+import pytest
 import scipy.sparse
 
 from fa2_modified import ForceAtlas2

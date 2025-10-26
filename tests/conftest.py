@@ -1,8 +1,8 @@
 """
 Pytest configuration and fixtures for fa2_modified tests
 """
-import pytest
 import numpy as np
+import pytest
 
 
 @pytest.fixture

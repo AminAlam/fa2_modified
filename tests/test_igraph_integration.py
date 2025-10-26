@@ -1,8 +1,8 @@
 """
 Tests for igraph integration
 """
-import pytest
 import numpy as np
+import pytest
 
 try:
     import igraph

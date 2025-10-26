@@ -1,9 +1,10 @@
 """
 Tests for fa2util module - testing force calculations and utility classes
 """
-import pytest
-import numpy as np
 from math import sqrt
+
+import numpy as np
+import pytest
 
 from fa2_modified import fa2util
 
