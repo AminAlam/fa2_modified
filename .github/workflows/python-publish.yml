@@ -1,45 +1,101 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Upload Python Package
+name: Build and Publish Wheels
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
-
-    runs-on: ubuntu-latest
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: docker://quay.io/pypa/manylinux2014_x86_64
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine auditwheel
-    - name: Build package
-      run: |
-        python3 -m pip install --upgrade build
-        python3 -m build
-    - name: Repair wheels
-      run: |
-        auditwheel repair --wheel-dir dist dist/*.whl
-        rm -rf dist/*linux_x86_64*.whl
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN_GITHUB }}
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up QEMU for Linux ARM builds
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install cibuildwheel
+        run: |
+          python -m pip install --upgrade pip
+          pip install cibuildwheel==2.16.5
+
+      - name: Build wheels
+        env:
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "pp* *-musllinux_*"
+          CIBW_BEFORE_BUILD: "pip install -U pip setuptools wheel Cython numpy"
+          CIBW_BEFORE_BUILD_LINUX: "pip install -U pip setuptools wheel Cython numpy && yum install -y gcc"
+          CIBW_TEST_COMMAND: "python -c \"import fa2_modified; print('Import successful')\""
+          CIBW_TEST_REQUIRES: "numpy scipy tqdm"
+          CIBW_ARCHS_MACOS: "x86_64 arm64"
+          CIBW_ARCHS_WINDOWS: "AMD64"
+          CIBW_ARCHS_LINUX: "x86_64 aarch64"
+          CIBW_BUILD_VERBOSITY: 1
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Build sdist (source)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          python -m pip install build Cython
+          python -m build --sdist --outdir wheelhouse
+
+      - name: List built wheels
+        run: ls -lh wheelhouse/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: wheelhouse/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: build-wheels
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/fa2-modified
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List all files to publish
+        run: ls -lh dist/
+
+      - name: Verify wheels
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN_GITHUB }}
+          packages-dir: dist
+          verbose: true
+          print-hash: true
