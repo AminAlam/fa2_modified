@@ -7,6 +7,7 @@
 # fa2util.pxd TO REFLECT ANY CHANGES IN FUNCTION DEFINITIONS!
 #
 # Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com>
+# Copyright (C) 2017 Amin Alam <ma.alamalhoda@gmail.com>
 #
 # Available under the GPLv3
 
@@ -17,6 +18,7 @@ from math import sqrt
 class Node:
     def __init__(self):
         self.mass = 0.0
+        self.size = 1.0
         self.old_dx = 0.0
         self.old_dy = 0.0
         self.dx = 0.0
@@ -39,13 +41,40 @@ class Edge:
 
 # Repulsion function.  `n1` and `n2` should be nodes.  This will
 # adjust the dx and dy values of `n1`  `n2`
-def linRepulsion(n1, n2, coefficient=0):
+def linRepulsion(n1, n2, coefficient, adjustSizes=False):
+    # Not the ideal solution, just to avoid repeating code in apply_repulsion.
+    if adjustSizes:
+        linRepulsion_antiCollision(n1, n2, coefficient)
+        return
+
     xDist = n1.x - n2.x
     yDist = n1.y - n2.y
-    distance2 = xDist * xDist + yDist * yDist  # Distance squared
+    distance = sqrt(xDist * xDist + yDist * yDist)
 
-    if distance2 > 0:
-        factor = coefficient * n1.mass * n2.mass / distance2
+    if distance > 0:
+        factor = coefficient * n1.mass * n2.mass / distance / distance
+        n1.dx += xDist * factor
+        n1.dy += yDist * factor
+        n2.dx -= xDist * factor
+        n2.dy -= yDist * factor
+
+
+def linRepulsion_antiCollision(n1, n2, coefficient):
+    xDist = n1.x - n2.x
+    yDist = n1.y - n2.y
+    distance = sqrt(xDist * xDist + yDist * yDist) - n1.size - n2.size
+
+    if distance > 0:
+        factor = coefficient * n1.mass * n2.mass / distance / distance
+
+        n1.dx += xDist * factor
+        n1.dy += yDist * factor
+        n2.dx -= xDist * factor
+        n2.dy -= yDist * factor
+
+    elif distance < 0:
+        factor = 100 * coefficient * n1.mass * n2.mass
+
         n1.dx += xDist * factor
         n1.dy += yDist * factor
         n2.dx -= xDist * factor
@@ -56,10 +85,10 @@ def linRepulsion(n1, n2, coefficient=0):
 def linRepulsion_region(n, r, coefficient=0):
     xDist = n.x - r.massCenterX
     yDist = n.y - r.massCenterY
-    distance2 = xDist * xDist + yDist * yDist
+    distance = sqrt(xDist * xDist + yDist * yDist)
 
-    if distance2 > 0:
-        factor = coefficient * n.mass * r.mass / distance2
+    if distance > 0:
+        factor = coefficient * n.mass * r.mass / distance / distance
         n.dx += xDist * factor
         n.dy += yDist * factor
 
@@ -95,30 +124,54 @@ def strongGravity(n, g, coefficient=0):
 # Attraction function.  `n1` and `n2` should be nodes.  This will
 # adjust the dx and dy values of `n1` and `n2`.  It does
 # not return anything.
-def linAttraction(n1, n2, e, distributedAttraction, coefficient=0):
+def linAttraction(n1, n2, e, distributedAttraction, coefficient, adjustSizes=False):
+    # Not the ideal solution, just to avoid repeating code in apply_attraction.
+    if adjustSizes:
+        linAttraction_antiCollision(n1, n2, e, distributedAttraction, coefficient)
+        return
+
     xDist = n1.x - n2.x
     yDist = n1.y - n2.y
     if not distributedAttraction:
         factor = -coefficient * e
     else:
         factor = -coefficient * e / n1.mass
+
     n1.dx += xDist * factor
     n1.dy += yDist * factor
     n2.dx -= xDist * factor
     n2.dy -= yDist * factor
 
 
+def linAttraction_antiCollision(n1, n2, e, distributedAttraction, coefficient):
+    xDist = n1.x - n2.x
+    yDist = n1.y - n2.y
+    distance = sqrt(xDist * xDist + yDist * yDist) - n1.size - n2.size
+
+    if distance > 0:
+        if not distributedAttraction:
+            factor = -coefficient * e
+        else:
+            factor = -coefficient * e / n1.mass
+
+        n1.dx += xDist * factor
+        n1.dy += yDist * factor
+
+        n2.dx -= xDist * factor
+        n2.dy -= yDist * factor
+
+
 # The following functions iterate through the nodes or edges and apply
 # the forces directly to the node objects.  These iterations are here
 # instead of the main file because Python is slow with loops.
-def apply_repulsion(nodes, coefficient):
+def apply_repulsion(nodes, coefficient, adjustSizes=False):
     i = 0
     for n1 in nodes:
         j = i
         for n2 in nodes:
             if j == 0:
                 break
-            linRepulsion(n1, n2, coefficient)
+            linRepulsion(n1, n2, coefficient, adjustSizes)
             j -= 1
         i += 1
 
@@ -133,7 +186,12 @@ def apply_gravity(nodes, gravity, scalingRatio, useStrongGravity=False):
 
 
 def apply_attraction(
-    nodes, edges, distributedAttraction, coefficient, edgeWeightInfluence
+    nodes,
+    edges,
+    distributedAttraction,
+    coefficient,
+    edgeWeightInfluence,
+    adjustSizes=False,
 ):
     # Optimization, since usually edgeWeightInfluence is 0 or 1, and pow is slow
     if edgeWeightInfluence == 0:
@@ -144,6 +202,7 @@ def apply_attraction(
                 1,
                 distributedAttraction,
                 coefficient,
+                adjustSizes,
             )
     elif edgeWeightInfluence == 1:
         for edge in edges:
@@ -153,6 +212,7 @@ def apply_attraction(
                 edge.weight,
                 distributedAttraction,
                 coefficient,
+                adjustSizes,
             )
     else:
         for edge in edges:
@@ -162,6 +222,7 @@ def apply_attraction(
                 pow(edge.weight, edgeWeightInfluence),
                 distributedAttraction,
                 coefficient,
+                adjustSizes,
             )
 
 
@@ -255,9 +316,9 @@ class Region:
             for subregion in self.subregions:
                 subregion.buildSubRegions()
 
-    def applyForce(self, n, theta, coefficient=0):
+    def applyForce(self, n, theta, coefficient, adjustSizes=False):
         if len(self.nodes) < 2:
-            linRepulsion(n, self.nodes[0], coefficient)
+            linRepulsion(n, self.nodes[0], coefficient, adjustSizes)
         else:
             distance = sqrt(
                 (n.x - self.massCenterX) ** 2 + (n.y - self.massCenterY) ** 2
@@ -266,15 +327,17 @@ class Region:
                 linRepulsion_region(n, self, coefficient)
             else:
                 for subregion in self.subregions:
-                    subregion.applyForce(n, theta, coefficient)
+                    subregion.applyForce(n, theta, coefficient, adjustSizes)
 
-    def applyForceOnNodes(self, nodes, theta, coefficient=0):
+    def applyForceOnNodes(self, nodes, theta, coefficient, adjustSizes=False):
         for n in nodes:
-            self.applyForce(n, theta, coefficient)
+            self.applyForce(n, theta, coefficient, adjustSizes)
 
 
 # Adjust speed and apply forces step
-def adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, jitterTolerance):
+def adjustSpeedAndApplyForces(
+    nodes, speed, speedEfficiency, jitterTolerance, adjustSizes=False
+):
     # Auto adjust speed.
     totalSwinging = 0.0  # How much irregular movement
     totalEffectiveTraction = 0.0  # How much useful movement
@@ -334,17 +397,28 @@ def adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, jitterTolerance):
     speed = speed + min(targetSpeed - speed, maxRise * speed)
 
     # Apply forces.
-    #
-    # Need to add a case if adjustSizes ("prevent overlap") is
-    # implemented.
-    for n in nodes:
-        swinging = n.mass * sqrt(
-            (n.old_dx - n.dx) * (n.old_dx - n.dx)
-            + (n.old_dy - n.dy) * (n.old_dy - n.dy)
-        )
-        factor = speed / (1.0 + sqrt(speed * swinging))
-        n.x = n.x + (n.dx * factor)
-        n.y = n.y + (n.dy * factor)
+    if adjustSizes:
+        for n in nodes:
+            swinging = n.mass * sqrt(
+                (n.old_dx - n.dx) * (n.old_dx - n.dx)
+                + (n.old_dy - n.dy) * (n.old_dy - n.dy)
+            )
+            factor = 0.1 * speed / (1.0 + sqrt(speed * swinging))
+
+            df = sqrt(pow(n.dx, 2) + pow(n.dy, 2))
+            factor = min(factor * df, 10.0) / df
+
+            n.x = n.x + (n.dx * factor)
+            n.y = n.y + (n.dy * factor)
+    else:
+        for n in nodes:
+            swinging = n.mass * sqrt(
+                (n.old_dx - n.dx) * (n.old_dx - n.dx)
+                + (n.old_dy - n.dy) * (n.old_dy - n.dy)
+            )
+            factor = speed / (1.0 + sqrt(speed * swinging))
+            n.x = n.x + (n.dx * factor)
+            n.y = n.y + (n.dy * factor)
 
     values = {}
     values["speed"] = speed

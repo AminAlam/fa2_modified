@@ -58,10 +58,13 @@ class TestForceAtlas2Initialization:
             ForceAtlas2(linLogMode=True)
 
         with pytest.raises(AssertionError):
-            ForceAtlas2(adjustSizes=True)
-
-        with pytest.raises(AssertionError):
             ForceAtlas2(multiThreaded=True)
+
+    def test_adjustSizes_feature_works(self):
+        """Test that adjustSizes is now an implemented feature"""
+        fa2 = ForceAtlas2(adjustSizes=True, nodeSize=2.0)
+        assert fa2.adjustSizes is True
+        assert fa2.nodeSize == 2.0
 
 
 class TestForceAtlas2Init:

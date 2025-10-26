@@ -15,6 +15,7 @@
 # NOTES: Currently, this only works for weighted undirected graphs.
 #
 # Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com>
+# Copyright (C) 2025 Amin Alam <ma.alamalhoda@gmail.com>
 #
 # Available under the GPLv3
 
@@ -50,7 +51,7 @@ class ForceAtlas2:
         # Behavior alternatives
         outboundAttractionDistribution=False,  # Dissuade hubs
         linLogMode=False,  # NOT IMPLEMENTED
-        adjustSizes=False,  # Prevent overlap (NOT IMPLEMENTED)
+        adjustSizes=False,  # Prevent overlap
         edgeWeightInfluence=1.0,
         # Performance
         jitterTolerance=1.0,  # Tolerance
@@ -61,11 +62,12 @@ class ForceAtlas2:
         scalingRatio=2.0,
         strongGravityMode=False,
         gravity=1.0,
+        nodeSize=1.0,  # Overlap distance
         # Log
         verbose=True,
     ):
         assert (
-            linLogMode == adjustSizes == multiThreaded == False
+            linLogMode == multiThreaded == False
         ), "You selected a feature that has not been implemented yet..."
         self.outboundAttractionDistribution = outboundAttractionDistribution
         self.linLogMode = linLogMode
@@ -77,6 +79,7 @@ class ForceAtlas2:
         self.scalingRatio = scalingRatio
         self.strongGravityMode = strongGravityMode
         self.gravity = gravity
+        self.nodeSize = nodeSize
         self.verbose = verbose
 
     def init(
@@ -113,6 +116,7 @@ class ForceAtlas2:
                 n.mass = 1 + len(G.rows[i])
             else:
                 n.mass = 1 + numpy.count_nonzero(G[i])
+            n.size = self.nodeSize
             n.old_dx = 0
             n.old_dy = 0
             n.dx = 0
@@ -207,10 +211,10 @@ class ForceAtlas2:
             # parallelization should be implemented here
             if self.barnesHutOptimize:
                 rootRegion.applyForceOnNodes(
-                    nodes, self.barnesHutTheta, self.scalingRatio
+                    nodes, self.barnesHutTheta, self.scalingRatio, self.adjustSizes
                 )
             else:
-                fa2util.apply_repulsion(nodes, self.scalingRatio)
+                fa2util.apply_repulsion(nodes, self.scalingRatio, self.adjustSizes)
             repulsion_timer.stop()
 
             # Gravitational forces
@@ -231,13 +235,14 @@ class ForceAtlas2:
                 self.outboundAttractionDistribution,
                 outboundAttCompensation,
                 self.edgeWeightInfluence,
+                self.adjustSizes,
             )
             attraction_timer.stop()
 
             # Adjust speeds and apply forces
             applyforces_timer.start()
             values = fa2util.adjustSpeedAndApplyForces(
-                nodes, speed, speedEfficiency, self.jitterTolerance
+                nodes, speed, speedEfficiency, self.jitterTolerance, self.adjustSizes
             )
             speed = values["speed"]
             speedEfficiency = values["speedEfficiency"]
