@@ -1,2 +1,5 @@
 include fa2_modified/fa2util.pxd
+include fa2_modified/fa2util.c
+include README.md
+include LICENSE
 include examples/*

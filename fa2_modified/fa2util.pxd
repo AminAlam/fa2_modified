@@ -8,11 +8,13 @@
 # IF ANY CHANGES ARE MADE TO fa2util.py, THE CHANGES MUST BE REFLECTED
 # HERE!!
 #
-# Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com>
+# Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com> 
+# Copyright (C) 2025 Amin Alam <ma.alamalhoda@gmail.com>
 #
 # Available under the GPLv3
 
 import cython
+
 
 # This will substitute for the nLayout object
 cdef class Node:
@@ -48,20 +50,20 @@ cdef void linRepulsion_antiCollision(Node n1, Node n2, double coefficient)
                yDist = cython.double,
                distance2 = cython.double,
                factor = cython.double)
-cdef void linRepulsion_region(Node n, Region r, double coefficient=*)
+cpdef void linRepulsion_region(Node n, Region r, double coefficient=*)
 
 
 @cython.locals(xDist = cython.double, 
                yDist = cython.double, 
                distance = cython.double, 
                factor = cython.double)
-cdef void linGravity(Node n, double g)
+cpdef void linGravity(Node n, double g)
 
 
 @cython.locals(xDist = cython.double, 
                yDist = cython.double, 
                factor = cython.double)
-cdef void strongGravity(Node n, double g, double coefficient=*)
+cpdef void strongGravity(Node n, double g, double coefficient=*)
 
 @cython.locals(xDist = cython.double, 
                yDist = cython.double, 

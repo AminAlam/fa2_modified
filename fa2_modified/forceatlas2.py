@@ -15,6 +15,7 @@
 # NOTES: Currently, this only works for weighted undirected graphs.
 #
 # Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com>
+# Copyright (C) 2025 Amin Alam <ma.alamalhoda@gmail.com>
 #
 # Available under the GPLv3
 
@@ -38,35 +39,36 @@ class Timer:
         self.start_time = time.time()
 
     def stop(self):
-        self.total_time += (time.time() - self.start_time)
+        self.total_time += time.time() - self.start_time
 
     def display(self):
         print(self.name, " took ", "%.2f" % self.total_time, " seconds")
 
 
 class ForceAtlas2:
-    def __init__(self,
-                 # Behavior alternatives
-                 outboundAttractionDistribution=False,  # Dissuade hubs
-                 linLogMode=False,  # NOT IMPLEMENTED
-                 adjustSizes=False,  # Prevent overlap
-                 edgeWeightInfluence=1.0,
-
-                 # Performance
-                 jitterTolerance=1.0,  # Tolerance
-                 barnesHutOptimize=True,
-                 barnesHutTheta=1.2,
-                 multiThreaded=False,  # NOT IMPLEMENTED
-
-                 # Tuning
-                 scalingRatio=2.0,
-                 strongGravityMode=False,
-                 gravity=1.0,
-                 nodeSize=1.0, # Overlap distance
-
-                 # Log
-                 verbose=True):
-        assert linLogMode == multiThreaded == False, "You selected a feature that has not been implemented yet..."
+    def __init__(
+        self,
+        # Behavior alternatives
+        outboundAttractionDistribution=False,  # Dissuade hubs
+        linLogMode=False,  # NOT IMPLEMENTED
+        adjustSizes=False,  # Prevent overlap
+        edgeWeightInfluence=1.0,
+        # Performance
+        jitterTolerance=1.0,  # Tolerance
+        barnesHutOptimize=True,
+        barnesHutTheta=1.2,
+        multiThreaded=False,  # NOT IMPLEMENTED
+        # Tuning
+        scalingRatio=2.0,
+        strongGravityMode=False,
+        gravity=1.0,
+        nodeSize=1.0,  # Overlap distance
+        # Log
+        verbose=True,
+    ):
+        assert (
+            linLogMode == multiThreaded == False
+        ), "You selected a feature that has not been implemented yet..."
         self.outboundAttractionDistribution = outboundAttractionDistribution
         self.linLogMode = linLogMode
         self.adjustSizes = adjustSizes
@@ -80,20 +82,27 @@ class ForceAtlas2:
         self.nodeSize = nodeSize
         self.verbose = verbose
 
-    def init(self,
-             G,  # a graph in 2D numpy ndarray format (or) scipy sparse matrix format
-             pos=None  # Array of initial positions
-             ):
+    def init(
+        self,
+        G,  # a graph in 2D numpy ndarray format (or) scipy sparse matrix format
+        pos=None,  # Array of initial positions
+    ):
         isSparse = False
         if isinstance(G, numpy.ndarray):
             # Check our assumptions
             assert G.shape == (G.shape[0], G.shape[0]), "G is not 2D square"
-            assert numpy.all(G.T == G), "G is not symmetric.  Currently only undirected graphs are supported"
-            assert isinstance(pos, numpy.ndarray) or (pos is None), "Invalid node positions"
+            assert numpy.all(
+                G.T == G
+            ), "G is not symmetric.  Currently only undirected graphs are supported"
+            assert isinstance(pos, numpy.ndarray) or (
+                pos is None
+            ), "Invalid node positions"
         elif scipy.sparse.issparse(G):
             # Check our assumptions
             assert G.shape == (G.shape[0], G.shape[0]), "G is not 2D square"
-            assert isinstance(pos, numpy.ndarray) or (pos is None), "Invalid node positions"
+            assert isinstance(pos, numpy.ndarray) or (
+                pos is None
+            ), "Invalid node positions"
             G = G.tolil()
             isSparse = True
         else:
@@ -124,7 +133,8 @@ class ForceAtlas2:
         edges = []
         es = numpy.asarray(G.nonzero()).T
         for e in es:  # Iterate through edges
-            if e[1] <= e[0]: continue  # Avoid duplicate edges
+            if e[1] <= e[0]:
+                continue  # Avoid duplicate edges
             edge = fa2util.Edge()
             edge.node1 = e[0]  # The index of the first node in `nodes`
             edge.node2 = e[1]  # The index of the second node in `nodes`
@@ -149,11 +159,12 @@ class ForceAtlas2:
     #
     # Currently, only undirected graphs are supported so the adjacency matrix
     # should be symmetric.
-    def forceatlas2(self,
-                    G,  # a graph in 2D numpy ndarray format (or) scipy sparse matrix format
-                    pos=None,  # Array of initial positions
-                    iterations=100  # Number of times to iterate the main loop
-                    ):
+    def forceatlas2(
+        self,
+        G,  # a graph in 2D numpy ndarray format (or) scipy sparse matrix format
+        pos=None,  # Array of initial positions
+        iterations=100,  # Number of times to iterate the main loop
+    ):
         # Initializing, initAlgo()
         # ================================================================
 
@@ -199,27 +210,42 @@ class ForceAtlas2:
             repulsion_timer.start()
             # parallelization should be implemented here
             if self.barnesHutOptimize:
-                rootRegion.applyForceOnNodes(nodes, self.barnesHutTheta, self.scalingRatio, self.adjustSizes)
+                rootRegion.applyForceOnNodes(
+                    nodes, self.barnesHutTheta, self.scalingRatio, self.adjustSizes
+                )
             else:
                 fa2util.apply_repulsion(nodes, self.scalingRatio, self.adjustSizes)
             repulsion_timer.stop()
 
             # Gravitational forces
             gravity_timer.start()
-            fa2util.apply_gravity(nodes, self.gravity, scalingRatio=self.scalingRatio, useStrongGravity=self.strongGravityMode)
+            fa2util.apply_gravity(
+                nodes,
+                self.gravity,
+                scalingRatio=self.scalingRatio,
+                useStrongGravity=self.strongGravityMode,
+            )
             gravity_timer.stop()
 
             # If other forms of attraction were implemented they would be selected here.
             attraction_timer.start()
-            fa2util.apply_attraction(nodes, edges, self.outboundAttractionDistribution, outboundAttCompensation,
-                                     self.edgeWeightInfluence, self.adjustSizes)
+            fa2util.apply_attraction(
+                nodes,
+                edges,
+                self.outboundAttractionDistribution,
+                outboundAttCompensation,
+                self.edgeWeightInfluence,
+                self.adjustSizes,
+            )
             attraction_timer.stop()
 
             # Adjust speeds and apply forces
             applyforces_timer.start()
-            values = fa2util.adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, self.jitterTolerance, self.adjustSizes)
-            speed = values['speed']
-            speedEfficiency = values['speedEfficiency']
+            values = fa2util.adjustSpeedAndApplyForces(
+                nodes, speed, speedEfficiency, self.jitterTolerance, self.adjustSizes
+            )
+            speed = values["speed"]
+            speedEfficiency = values["speedEfficiency"]
             applyforces_timer.stop()
 
         if self.verbose:
@@ -236,19 +262,25 @@ class ForceAtlas2:
     #
     # This function returns a NetworkX layout, which is really just a
     # dictionary of node positions (2D X-Y tuples) indexed by the node name.
-    def forceatlas2_networkx_layout(self, G, pos=None, iterations=100, weight_attr=None):
+    def forceatlas2_networkx_layout(
+        self, G, pos=None, iterations=100, weight_attr=None
+    ):
         import networkx
+
         try:
             import cynetworkx
         except ImportError:
             cynetworkx = None
 
-        assert (
-            isinstance(G, networkx.classes.graph.Graph)
-            or (cynetworkx and isinstance(G, cynetworkx.classes.graph.Graph))
+        assert isinstance(G, networkx.classes.graph.Graph) or (
+            cynetworkx and isinstance(G, cynetworkx.classes.graph.Graph)
         ), "Not a networkx graph"
-        assert isinstance(pos, dict) or (pos is None), "pos must be specified as a dictionary, as in networkx"
-        M = networkx.to_scipy_sparse_array(G, dtype='f', format='lil', weight=weight_attr)
+        assert isinstance(pos, dict) or (
+            pos is None
+        ), "pos must be specified as a dictionary, as in networkx"
+        M = networkx.to_scipy_sparse_array(
+            G, dtype="f", format="lil", weight=weight_attr
+        )
         if pos is None:
             l = self.forceatlas2(M, pos=None, iterations=iterations)
         else:
@@ -261,8 +293,8 @@ class ForceAtlas2:
     # This function returns an igraph layout
     def forceatlas2_igraph_layout(self, G, pos=None, iterations=100, weight_attr=None):
 
-        from scipy.sparse import csr_matrix
         import igraph
+        from scipy.sparse import csr_matrix
 
         def to_sparse(graph, weight_attr=None):
             edges = graph.get_edgelist()
@@ -275,10 +307,17 @@ class ForceAtlas2:
                 edges.extend([(v, u) for u, v in edges])
                 weights.extend(weights)
 
-            return csr_matrix((weights, list(zip(*edges))))
+            # Handle empty edges case
+            n = graph.vcount()
+            if len(edges) == 0:
+                return csr_matrix((n, n))
+
+            return csr_matrix((weights, list(zip(*edges))), shape=(n, n))
 
         assert isinstance(G, igraph.Graph), "Not a igraph graph"
-        assert isinstance(pos, (list, numpy.ndarray)) or (pos is None), "pos must be a list or numpy array"
+        assert isinstance(pos, (list, numpy.ndarray)) or (
+            pos is None
+        ), "pos must be a list or numpy array"
 
         if isinstance(pos, list):
             pos = numpy.array(pos)
