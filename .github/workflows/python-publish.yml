@@ -40,8 +40,9 @@ jobs:
         env:
           CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
           CIBW_SKIP: "pp* *-musllinux_*"
-          CIBW_BEFORE_BUILD: "pip install -U pip setuptools wheel Cython numpy"
-          CIBW_BEFORE_BUILD_LINUX: "pip install -U pip setuptools wheel Cython numpy && yum install -y gcc"
+          CIBW_BEFORE_BUILD: "python -m pip install --upgrade pip setuptools wheel Cython numpy"
+          CIBW_BEFORE_BUILD_LINUX: "python -m pip install --upgrade pip setuptools wheel Cython numpy && yum install -y gcc"
+          CIBW_BEFORE_BUILD_WINDOWS: "python -m pip install --upgrade pip setuptools wheel Cython numpy"
           CIBW_TEST_COMMAND: "python -c \"import fa2_modified; print('Import successful')\""
           CIBW_TEST_REQUIRES: "numpy scipy tqdm"
           CIBW_ARCHS_MACOS: "x86_64 arm64"
