@@ -1,6 +1,7 @@
 """
 Pytest configuration and fixtures for fa2_modified tests
 """
+
 import numpy as np
 import pytest
 
@@ -8,33 +9,26 @@ import pytest
 @pytest.fixture
 def simple_adjacency_matrix():
     """Simple 4-node graph as adjacency matrix"""
-    return np.array([
-        [0, 1, 0, 1],
-        [1, 0, 1, 0],
-        [0, 1, 0, 1],
-        [1, 0, 1, 0]
-    ])
+    return np.array([[0, 1, 0, 1], [1, 0, 1, 0], [0, 1, 0, 1], [1, 0, 1, 0]])
 
 
 @pytest.fixture
 def weighted_adjacency_matrix():
     """Simple weighted graph as adjacency matrix"""
-    return np.array([
-        [0.0, 2.5, 0.0, 1.0],
-        [2.5, 0.0, 3.0, 0.0],
-        [0.0, 3.0, 0.0, 1.5],
-        [1.0, 0.0, 1.5, 0.0]
-    ])
+    return np.array(
+        [
+            [0.0, 2.5, 0.0, 1.0],
+            [2.5, 0.0, 3.0, 0.0],
+            [0.0, 3.0, 0.0, 1.5],
+            [1.0, 0.0, 1.5, 0.0],
+        ]
+    )
 
 
 @pytest.fixture
 def triangle_graph():
     """Triangle graph (3 nodes, all connected)"""
-    return np.array([
-        [0, 1, 1],
-        [1, 0, 1],
-        [1, 1, 0]
-    ])
+    return np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
 
 
 @pytest.fixture
@@ -51,12 +45,7 @@ def star_graph():
 @pytest.fixture
 def disconnected_graph():
     """Graph with two disconnected components"""
-    return np.array([
-        [0, 1, 0, 0],
-        [1, 0, 0, 0],
-        [0, 0, 0, 1],
-        [0, 0, 1, 0]
-    ])
+    return np.array([[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 
 
 @pytest.fixture
@@ -74,6 +63,7 @@ def ring_graph():
 def random_seed():
     """Set random seed for reproducible tests"""
     import random
+
     np.random.seed(42)
     random.seed(42)
     yield
@@ -87,13 +77,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line(
         "markers", "requires_networkx: requires networkx to be installed"
     )
     config.addinivalue_line(
         "markers", "requires_igraph: requires igraph to be installed"
     )
-
