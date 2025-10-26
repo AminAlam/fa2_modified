@@ -8,8 +8,7 @@
 # IF ANY CHANGES ARE MADE TO fa2util.py, THE CHANGES MUST BE REFLECTED
 # HERE!!
 #
-# Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com> 
-# Copyright (C) 2025 Amin Alam <ma.alamalhoda@gmail.com>
+# Copyright (C) 2017 Bhargav Chippada <bhargavchippada19@gmail.com>
 #
 # Available under the GPLv3
 
@@ -38,13 +37,13 @@ cdef class Edge:
                yDist = cython.double, 
                distance = cython.double, 
                factor = cython.double)
-cdef void linRepulsion(Node n1, Node n2, double coefficient, bint adjustSizes=*)
+cpdef void linRepulsion(Node n1, Node n2, double coefficient, bint adjustSizes=*)
 
 @cython.locals(xDist = cython.double, 
                yDist = cython.double, 
                distance = cython.double, 
                factor = cython.double)
-cdef void linRepulsion_antiCollision(Node n1, Node n2, double coefficient)
+cpdef void linRepulsion_antiCollision(Node n1, Node n2, double coefficient)
 
 @cython.locals(xDist = cython.double,
                yDist = cython.double,
@@ -112,7 +111,7 @@ cdef class Region:
 
     @cython.locals(distance = cython.double,
                    subregion = Region)
-    cdef void applyForce(self, Node n, double theta, double coefficient, bint adjustSizes=*)
+    cpdef void applyForce(self, Node n, double theta, double coefficient, bint adjustSizes=*)
 
     @cython.locals(n = Node)
     cpdef applyForceOnNodes(self, list nodes, double theta, double coefficient, bint adjustSizes=*)

@@ -46,7 +46,7 @@ def linRepulsion(n1, n2, coefficient, adjustSizes=False):
     if adjustSizes:
         linRepulsion_antiCollision(n1, n2, coefficient)
         return
-    
+
     xDist = n1.x - n2.x
     yDist = n1.y - n2.y
     distance = sqrt(xDist * xDist + yDist * yDist)
@@ -129,14 +129,14 @@ def linAttraction(n1, n2, e, distributedAttraction, coefficient, adjustSizes=Fal
     if adjustSizes:
         linAttraction_antiCollision(n1, n2, e, distributedAttraction, coefficient)
         return
-    
+
     xDist = n1.x - n2.x
     yDist = n1.y - n2.y
     if not distributedAttraction:
         factor = -coefficient * e
     else:
         factor = -coefficient * e / n1.mass
-        
+
     n1.dx += xDist * factor
     n1.dy += yDist * factor
     n2.dx -= xDist * factor
@@ -186,7 +186,12 @@ def apply_gravity(nodes, gravity, scalingRatio, useStrongGravity=False):
 
 
 def apply_attraction(
-    nodes, edges, distributedAttraction, coefficient, edgeWeightInfluence, adjustSizes=False
+    nodes,
+    edges,
+    distributedAttraction,
+    coefficient,
+    edgeWeightInfluence,
+    adjustSizes=False,
 ):
     # Optimization, since usually edgeWeightInfluence is 0 or 1, and pow is slow
     if edgeWeightInfluence == 0:
@@ -330,7 +335,9 @@ class Region:
 
 
 # Adjust speed and apply forces step
-def adjustSpeedAndApplyForces(nodes, speed, speedEfficiency, jitterTolerance, adjustSizes=False):
+def adjustSpeedAndApplyForces(
+    nodes, speed, speedEfficiency, jitterTolerance, adjustSizes=False
+):
     # Auto adjust speed.
     totalSwinging = 0.0  # How much irregular movement
     totalEffectiveTraction = 0.0  # How much useful movement

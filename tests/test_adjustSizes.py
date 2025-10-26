@@ -8,8 +8,7 @@ when adjustSizes=True is enabled.
 import numpy as np
 import pytest
 
-from fa2_modified import ForceAtlas2
-from fa2_modified import fa2util
+from fa2_modified import ForceAtlas2, fa2util
 
 
 class TestAntiCollisionFunctions:
@@ -206,13 +205,17 @@ class TestAdjustSizesWithRepulsion:
 
         # Apply with adjustSizes
         fa2util.apply_repulsion([n1_with, n2_with], coefficient=1.0, adjustSizes=True)
-        
+
         # Apply without adjustSizes
-        fa2util.apply_repulsion([n1_without, n2_without], coefficient=1.0, adjustSizes=False)
+        fa2util.apply_repulsion(
+            [n1_without, n2_without], coefficient=1.0, adjustSizes=False
+        )
 
         # For overlapping nodes, adjustSizes should produce stronger repulsion
         # The anti-collision uses 100x factor for overlapping
-        assert abs(n1_with.dx) > abs(n1_without.dx), "adjustSizes should produce stronger forces for overlapping nodes"
+        assert abs(n1_with.dx) > abs(
+            n1_without.dx
+        ), "adjustSizes should produce stronger forces for overlapping nodes"
 
 
 class TestAdjustSizesWithAttraction:
@@ -313,7 +316,9 @@ class TestRegionWithAdjustSizes:
         target_nodes = [n1]
 
         # Apply force on nodes with adjustSizes
-        region.applyForceOnNodes(target_nodes, theta=1.2, coefficient=1.0, adjustSizes=True)
+        region.applyForceOnNodes(
+            target_nodes, theta=1.2, coefficient=1.0, adjustSizes=True
+        )
 
         # Verify force was applied to target node
         assert n1.dx != 0.0 or n1.dy != 0.0
@@ -361,7 +366,11 @@ class TestAdjustSpeedWithAdjustSizes:
         nodes = [n1]
 
         result = fa2util.adjustSpeedAndApplyForces(
-            nodes, speed=1.0, speedEfficiency=1.0, jitterTolerance=1.0, adjustSizes=False
+            nodes,
+            speed=1.0,
+            speedEfficiency=1.0,
+            jitterTolerance=1.0,
+            adjustSizes=False,
         )
 
         # Verify position changed
@@ -395,18 +404,28 @@ class TestAdjustSpeedWithAdjustSizes:
 
         # Apply with adjustSizes (should limit movement)
         fa2util.adjustSpeedAndApplyForces(
-            [n1_with], speed=10.0, speedEfficiency=1.0, jitterTolerance=1.0, adjustSizes=True
+            [n1_with],
+            speed=10.0,
+            speedEfficiency=1.0,
+            jitterTolerance=1.0,
+            adjustSizes=True,
         )
 
         # Apply without adjustSizes (no limiting)
         fa2util.adjustSpeedAndApplyForces(
-            [n1_without], speed=10.0, speedEfficiency=1.0, jitterTolerance=1.0, adjustSizes=False
+            [n1_without],
+            speed=10.0,
+            speedEfficiency=1.0,
+            jitterTolerance=1.0,
+            adjustSizes=False,
         )
 
         # With adjustSizes, movement should be more limited (factor capped at 10.0/df)
         # Without adjustSizes, movement can be larger
         # The factor with adjustSizes includes: min(factor * df, 10.0) / df
-        assert n1_with.x <= n1_without.x, "adjustSizes should limit movement for large forces"
+        assert (
+            n1_with.x <= n1_without.x
+        ), "adjustSizes should limit movement for large forces"
 
 
 class TestForceAtlas2WithAdjustSizes:
@@ -415,17 +434,9 @@ class TestForceAtlas2WithAdjustSizes:
     def test_forceatlas2_with_adjustSizes_simple_graph(self):
         """Test ForceAtlas2 layout with adjustSizes on a simple graph"""
         # Create a simple 3-node triangle graph
-        G = np.array([
-            [0, 1, 1],
-            [1, 0, 1],
-            [1, 1, 0]
-        ], dtype=float)
+        G = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=float)
 
-        fa2 = ForceAtlas2(
-            adjustSizes=True,
-            nodeSize=2.0,
-            verbose=False
-        )
+        fa2 = ForceAtlas2(adjustSizes=True, nodeSize=2.0, verbose=False)
 
         # Run layout
         positions = fa2.forceatlas2(G, iterations=10)
@@ -444,19 +455,19 @@ class TestForceAtlas2WithAdjustSizes:
             adjustSizes=True,
             nodeSize=1.5,
             barnesHutOptimize=False,  # Use direct n-body for this test
-            verbose=False
+            verbose=False,
         )
 
         # Run layout
         positions = fa2.forceatlas2(G, iterations=50)
 
         # Calculate minimum distance between any two nodes
-        min_distance = float('inf')
+        min_distance = float("inf")
         for i in range(len(positions)):
             for j in range(i + 1, len(positions)):
                 dist = np.sqrt(
-                    (positions[i][0] - positions[j][0]) ** 2 +
-                    (positions[i][1] - positions[j][1]) ** 2
+                    (positions[i][0] - positions[j][0]) ** 2
+                    + (positions[i][1] - positions[j][1]) ** 2
                 )
                 min_distance = min(min_distance, dist)
 
@@ -477,19 +488,16 @@ class TestForceAtlas2WithAdjustSizes:
 
     def test_adjustSizes_with_barnes_hut(self):
         """Test that adjustSizes works with Barnes-Hut optimization"""
-        G = np.array([
-            [0, 1, 1, 0],
-            [1, 0, 1, 1],
-            [1, 1, 0, 1],
-            [0, 1, 1, 0]
-        ], dtype=float)
+        G = np.array(
+            [[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 1], [0, 1, 1, 0]], dtype=float
+        )
 
         fa2 = ForceAtlas2(
             adjustSizes=True,
             nodeSize=2.0,
             barnesHutOptimize=True,
             barnesHutTheta=1.2,
-            verbose=False
+            verbose=False,
         )
 
         # Should run without errors
@@ -516,4 +524,3 @@ class TestBackwardCompatibility:
         positions = fa2.forceatlas2(G, iterations=5)
 
         assert len(positions) == 2
-
