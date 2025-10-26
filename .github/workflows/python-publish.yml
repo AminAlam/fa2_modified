@@ -49,8 +49,9 @@ jobs:
           CIBW_BEFORE_BUILD_LINUX: "python -m pip install --upgrade setuptools wheel Cython numpy"
           # On Windows, install without upgrade flag to avoid pip modification issues
           CIBW_BEFORE_BUILD_WINDOWS: "python -m pip install setuptools wheel Cython numpy"
-          CIBW_TEST_COMMAND: "python -c \"import fa2_modified; print('Import successful')\""
-          CIBW_TEST_REQUIRES: "numpy scipy tqdm"
+          # Run actual test suite to verify wheels work correctly on each platform
+          CIBW_TEST_COMMAND: "pytest {project}/tests -v -m 'not slow' --tb=short"
+          CIBW_TEST_REQUIRES: "pytest numpy scipy tqdm networkx python-igraph matplotlib"
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_WINDOWS: "AMD64"
           CIBW_ARCHS_LINUX: "x86_64 aarch64"
