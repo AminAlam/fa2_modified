@@ -272,7 +272,12 @@ class ForceAtlas2:
                 edges.extend([(v, u) for u, v in edges])
                 weights.extend(weights)
 
-            return csr_matrix((weights, list(zip(*edges))))
+            # Handle empty edges case
+            n = graph.vcount()
+            if len(edges) == 0:
+                return csr_matrix((n, n))
+            
+            return csr_matrix((weights, list(zip(*edges))), shape=(n, n))
 
         assert isinstance(G, igraph.Graph), "Not a igraph graph"
         assert isinstance(pos, (list, numpy.ndarray)) or (pos is None), "pos must be a list or numpy array"
