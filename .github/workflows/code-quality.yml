@@ -1,0 +1,87 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [ main, master, dev ]
+  push:
+    branches: [ main, master, dev ]
+
+jobs:
+  lint:
+    name: Linting (flake8)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install flake8
+      run: pip install flake8
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 fa2_modified --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 fa2_modified --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  format-check:
+    name: Code Formatting (black)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install black
+      run: pip install black
+    
+    - name: Check formatting
+      run: black --check --diff fa2_modified/ tests/
+
+  import-sort:
+    name: Import Sorting (isort)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install isort
+      run: pip install isort
+    
+    - name: Check import sorting
+      run: isort --check-only --diff fa2_modified/ tests/
+
+  type-check:
+    name: Type Checking (mypy)
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Don't fail the build on type errors for now
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install mypy numpy scipy tqdm
+    
+    - name: Type check with mypy
+      run: mypy fa2_modified/ --ignore-missing-imports || echo "Type checking found issues (not blocking)"
+
