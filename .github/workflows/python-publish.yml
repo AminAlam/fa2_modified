@@ -38,7 +38,7 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
           CIBW_SKIP: "pp* *-musllinux_*"
           # Use manylinux_2_28 (AlmaLinux 8) to avoid CentOS 7 EOL issues
           # These images have working repositories and include gcc by default
@@ -65,6 +65,7 @@ jobs:
           python -m build --sdist --outdir wheelhouse
 
       - name: List built wheels
+        shell: bash
         run: ls -lh wheelhouse/
 
       - name: Upload artifacts
@@ -92,6 +93,7 @@ jobs:
           merge-multiple: true
 
       - name: List all files to publish
+        shell: bash
         run: ls -lh dist/
 
       - name: Verify wheels
