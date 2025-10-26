@@ -2,6 +2,7 @@
 Tests for NetworkX integration
 """
 import numbers
+
 import numpy as np
 import pytest
 

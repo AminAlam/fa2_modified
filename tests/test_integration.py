@@ -3,8 +3,8 @@ Integration tests for fa2_modified package
 Tests the interaction between different components
 """
 import numpy as np
-import scipy.sparse
 import pytest
+import scipy.sparse
 
 from fa2_modified import ForceAtlas2
 

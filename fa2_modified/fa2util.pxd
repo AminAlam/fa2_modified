@@ -13,7 +13,6 @@
 # Available under the GPLv3
 
 import cython
-
 # This will substitute for the nLayout object
 cdef class Node:
     cdef public double mass

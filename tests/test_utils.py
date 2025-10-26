@@ -1,8 +1,9 @@
 """
 Tests for utility classes and functions
 """
-import pytest
 import time
+
+import pytest
 
 from fa2_modified.forceatlas2 import Timer
 
