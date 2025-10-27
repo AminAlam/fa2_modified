@@ -50,6 +50,7 @@ setup(
     long_description=long_description,
     author='Bhargav Chippada, Amin Alam',
     url='https://github.com/AminAlam/forceatlas2_maintained',
+    license='GPLv3',
     keywords=['forceatlas2', 'networkx', 'force-directed-graph', 'force-layout', 'graph'],
     packages=['fa2_modified'],
     classifiers=[
