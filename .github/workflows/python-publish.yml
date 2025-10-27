@@ -50,7 +50,7 @@ jobs:
           # On Windows, install without upgrade flag to avoid pip modification issues
           CIBW_BEFORE_BUILD_WINDOWS: "python -m pip install setuptools wheel Cython numpy"
           # Run actual test suite to verify wheels work correctly on each platform
-          CIBW_TEST_COMMAND: "pytest {project}/tests -v -m 'not slow' --tb=short"
+          CIBW_TEST_COMMAND: 'pytest {project}/tests -v -m "not slow" --tb=short'
           CIBW_TEST_REQUIRES: "pytest numpy scipy tqdm networkx python-igraph matplotlib"
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_WINDOWS: "AMD64"
