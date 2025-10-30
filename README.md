@@ -140,6 +140,10 @@ You will find all the documentation in the source code
 
 Contributions are highly welcome. Please submit your pull requests and become a collaborator.
 
+<a href="https://github.com/AminAlam/fa2_modified/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AminAlam/fa2_modified" />
+</a>
+
 ## Copyright
 
     Copyright (C) 2017 Bhargav Chippada bhargavchippada19@gmail.com.
